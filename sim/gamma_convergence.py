@@ -1,7 +1,7 @@
 from __future__ import annotations
 import argparse, numpy as np, matplotlib.pyplot as plt
 from scipy.spatial import cKDTree
-from weights_schedules import node_volumes, gaussian_weights
+from sim.weights_schedules import node_volumes, gaussian_weights
 def test_field_and_grad(X):
     pi=np.pi; s=np.sin(pi*X); c=np.cos(pi*X); n=np.prod(s,axis=1)
     grads=[]; d=X.shape[1]
