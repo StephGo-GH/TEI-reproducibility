@@ -26,6 +26,9 @@ jobs:
           python sim/graph_generators.py --dim 4 --N 5000 --seed 0 --out data/seeds/g_small.npz
           python sim/poincare_check.py --graph data/seeds/g_small.npz --samples 2 --out figures/fig_poincare_ratio_ci.png
 
-      - name: Run tests
-        run: |
-          pytest -q
+- name: Run tests
+  env:
+    PYTHONPATH: ${{ github.workspace }}
+  run: |
+    pytest -q
+
