@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse, os, json, numpy as np
 from scipy.spatial import cKDTree
 from sklearn.neighbors import kneighbors_graph
-from weights_schedules import node_volumes, gaussian_weights
+from sim.weights_schedules import node_volumes, gaussian_weights
 def generate_rgg(dim:int,N:int,seed:int,k:int|None,radius:float|None):
     rng=np.random.default_rng(seed); X=rng.random((N,dim))
     if k is not None:
