@@ -2,21 +2,26 @@ name: tests
 
 on:
   push:
+    branches: [ main ]
   pull_request:
+    branches: [ main ]
 
 jobs:
   build:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # nécessaire pour pousser vers la branche ci-assets
 
     steps:
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.11"
 
-      # 👉 ICI on ajoute le cache pip pour accélérer les runs
       - name: Cache pip
         uses: actions/cache@v4
         with:
@@ -29,7 +34,6 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
-      # 👉 Vérifie que les imports du package sim fonctionnent
       - name: Smoke import
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -41,7 +45,6 @@ jobs:
           print("SIM imports OK")
           PY
 
-      # 👉 Petite exécution de démo pour générer une figure
       - name: Quick smoke run (small graph)
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -50,17 +53,34 @@ jobs:
           python sim/graph_generators.py --dim 4 --N 5000 --seed 0 --out data/seeds/g_small.npz
           python sim/poincare_check.py --graph data/seeds/g_small.npz --samples 2 --out figures/fig_poincare_ratio_ci.png
 
-      # 👉 Tests unitaires
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q
 
-      # 👉 Publie les figures en artefacts CI (toujours, même si tests KO)
-      - name: Upload figures
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: figures
-          path: figures/*
-          if-no-files-found: ignore
+      # Publie l'image générée dans une branche dédiée, accessible publiquement
+      - name: Prepare assets
+        if: github.ref == 'refs/heads/main'
+        run: |
+          mkdir -p assets/figures
+          cp figures/fig_poincare_ratio_ci.png assets/figures/fig_poincare_ratio_ci.png
+
+      - name: Publish figure to ci-assets branch
+        if: github.ref == 'refs/heads/main'
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run: |
+          set -e
+          # Crée un repo minimal dans un dossier séparé et pousse sur la branche 'ci-assets'
+          rm -rf ci-publish
+          mkdir ci-publish
+          cp -r assets ci-publish/assets
+          cd ci-publish
+          git init
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git remote add origin "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git"
+          git checkout -b ci-assets
+          git add -A
+          git commit -m "CI: update figure (run ${GITHUB_RUN_NUMBER})" || echo "No changes to commit"
+          git push -f origin ci-assets
