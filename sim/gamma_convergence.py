@@ -2,7 +2,7 @@ from __future__ import annotations
 import argparse, numpy as np, matplotlib.pyplot as plt
 from scipy.spatial import cKDTree
 from sim.weights_schedules import node_volumes, gaussian_weights
-def test_field_and_grad(X):
+def field_and_grad(X):
     pi=np.pi; s=np.sin(pi*X); c=np.cos(pi*X); n=np.prod(s,axis=1)
     grads=[]; d=X.shape[1]
     for k in range(d):
@@ -24,7 +24,7 @@ def run(dim,Ns,seed,out):
         tree=cKDTree(X); pairs=tree.query_pairs(r,output_type='ndarray')
         rows=np.concatenate([pairs[:,0],pairs[:,1]]); cols=np.concatenate([pairs[:,1],pairs[:,0]])
         dists=np.linalg.norm(X[rows]-X[cols],axis=1); W=gaussian_weights(dists,r,1.0); V=node_volumes(N)
-        n,_=test_field_and_grad(X); S.append(discrete_action(rows,cols,W,n)); eps.append(r)
+        n,_=field_and_grad(X); S.append(discrete_action(rows,cols,W,n)); eps.append(r)
         if S_eff is None: S_eff=continuum_action_MC(X,V)
     S=np.array(S); eps=np.array(eps)
     plt.figure(); plt.plot(eps,S,'o-',label='S_eps'); 
