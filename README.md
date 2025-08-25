@@ -1,3 +1,5 @@
+![CI](https://github.com/StephGo-GH/TEI-reproducibility/actions/workflows/python-tests.yml/badge.svg)
+
 # Theory of Informational Emergence (TEI)
 
 ![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)
