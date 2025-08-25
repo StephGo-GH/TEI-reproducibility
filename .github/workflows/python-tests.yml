@@ -7,6 +7,7 @@ on:
 jobs:
   build:
     runs-on: ubuntu-latest
+
     steps:
       - uses: actions/checkout@v4
 
@@ -20,15 +21,26 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      - name: Smoke import
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: |
+          python - <<'PY'
+          import os
+          print("PYTHONPATH=", os.environ.get("PYTHONPATH"))
+          import sim.graph_generators, sim.poincare_check, sim.gamma_convergence, sim.hyperbolicity_test
+          print("SIM imports OK")
+          PY
+
       - name: Quick smoke run (small graph)
+        env:
+          PYTHONPATH: ${{ github.workspace }}
         run: |
           mkdir -p data/seeds figures
           python sim/graph_generators.py --dim 4 --N 5000 --seed 0 --out data/seeds/g_small.npz
           python sim/poincare_check.py --graph data/seeds/g_small.npz --samples 2 --out figures/fig_poincare_ratio_ci.png
 
-- name: Run tests
-  env:
-    PYTHONPATH: ${{ github.workspace }}
-  run: |
-    pytest -q
-
+      - name: Run tests
+        env:
+          PYTHONPATH: ${{ github.workspace }}
+        run: pytest -q
