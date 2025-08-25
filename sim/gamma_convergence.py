@@ -15,7 +15,7 @@ def field_and_grad(X):
     return n,grad2
 def discrete_action(rows,cols,W,n): return 0.5*float(np.sum(W*(n[cols]-n[rows])**2))
 def continuum_action_MC(X,V):
-    _,g2=test_field_and_grad(X); return 0.5*float(np.sum(V*g2))
+    _,g2=field_and_grad(X); return 0.5*float(np.sum(V*g2))
 def run(dim,Ns,seed,out):
     rng=np.random.default_rng(seed); S=[]; eps=[]
     S_eff=None
