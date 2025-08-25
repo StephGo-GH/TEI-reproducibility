@@ -19,6 +19,12 @@ rigorous mathematical tools (Γ-convergence) and falsifiable predictions.
 
 ---
 
+## Paper / Preprint
+- HAL: (à venir)
+- arXiv: (à venir)
+
+---
+
 ## Key Results
 
 - **Mathematical Foundations**:  
@@ -112,7 +118,12 @@ tei\_github/
    ```bash
    pytest -q
    ````
-
+## Example result
+After running:
+```bash
+python sim/graph_generators.py --dim 4 --N 20000 --seed 42 --out data/seeds/g_2e4_d4.npz
+python sim/poincare_check.py --graph data/seeds/g_2e4_d4.npz --samples 4 --out figures/fig_poincare_ratio.png
+   ````
 ---
 
 ## Citation
