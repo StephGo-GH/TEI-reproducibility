@@ -16,11 +16,20 @@ jobs:
         with:
           python-version: "3.11"
 
+      # 👉 ICI on ajoute le cache pip pour accélérer les runs
+      - name: Cache pip
+        uses: actions/cache@v4
+        with:
+          path: ~/.cache/pip
+          key: ${{ runner.os }}-pip-${{ hashFiles('requirements.txt') }}
+          restore-keys: ${{ runner.os }}-pip-
+
       - name: Install dependencies
         run: |
           python -m pip install --upgrade pip
           pip install -r requirements.txt
 
+      # 👉 Vérifie que les imports du package sim fonctionnent
       - name: Smoke import
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -32,6 +41,7 @@ jobs:
           print("SIM imports OK")
           PY
 
+      # 👉 Petite exécution de démo pour générer une figure
       - name: Quick smoke run (small graph)
         env:
           PYTHONPATH: ${{ github.workspace }}
@@ -40,7 +50,17 @@ jobs:
           python sim/graph_generators.py --dim 4 --N 5000 --seed 0 --out data/seeds/g_small.npz
           python sim/poincare_check.py --graph data/seeds/g_small.npz --samples 2 --out figures/fig_poincare_ratio_ci.png
 
+      # 👉 Tests unitaires
       - name: Run tests
         env:
           PYTHONPATH: ${{ github.workspace }}
         run: pytest -q
+
+      # 👉 Publie les figures en artefacts CI (toujours, même si tests KO)
+      - name: Upload figures
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: figures
+          path: figures/*
+          if-no-files-found: ignore
