@@ -1,0 +1,16 @@
+name: tei
+channels: [conda-forge]
+dependencies:
+  - python=3.11
+  - numpy
+  - scipy
+  - pandas
+  - networkx
+  - numba
+  - matplotlib
+  - scikit-learn
+  - jupyter
+  - pytest
+  - pip
+  - pip:
+      - tqdm
